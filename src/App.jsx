@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.scss';
+import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
 
 function App() {
@@ -19,12 +20,26 @@ function App() {
     setTodoList(newTodoList);
 
   }
+
+  function handleTodoFormSubmit(formValues) {
+    const newTodoList = [...todoList];
+    const newTodo = {
+      id: Math.trunc(Math.random() * 1000),
+      ...formValues
+    };
+    newTodoList.push(newTodo);
+    setTodoList(newTodoList);
+  }
   return (
     <div className="app">
       <h1>Todo - List</h1>
+      <TodoForm
+        onSubmit={handleTodoFormSubmit}
+      />
       <TodoList
         todos={todoList}
         onTodoClick={handleTodoClick}
+
       />
     </div>
   );
