@@ -1,45 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import queryString from 'query-string';
 import './App.scss';
-import TodoForm from './components/TodoForm';
-import TodoList from './components/TodoList';
+import Pagination from './components/Pagination';
 
 function App() {
-  const [todoList, setTodoList] = useState([
-    { id: 1, title: 'khanh dep trai' },
-    { id: 2, title: 'react hooks basic' },
-    { id: 3, title: 'todo list item' },
-  ]);
+  const [postList, setPostList] = useState([]);
 
-  function handleTodoClick(todo) {
-    console.log(todo);
-    const index = todoList.findIndex(x => x.id === todo.id);
-    if (index < 0) return;
+  const [pagination, setPagination] = useState({
+    _page: 1,
+    _limit: 10,
+    _totalRows: 1,
+  });
 
-    const newTodoList = [...todoList];
-    newTodoList.splice(index, 1);
-    setTodoList(newTodoList);
+  const [filters, setFilters] = useState({
+    _page: 1,
+    _limit: 10,
+  })
 
-  }
+  useEffect(() => {
+    async function fetchPostList() {
+      try {
+        const queryParams = queryString.stringify(filters);
+        const requestUrl = `http://js-post-api.herokuapp.com/api/posts?${queryParams}`;
+        const response = await fetch(requestUrl);
+        const responseJSON = await response.json();
+        const { data, pagination } = responseJSON;
+        setPagination(pagination);
+        setPostList(data);
+      } catch (error) {
+        console.log('Erro fetching post list ..', error.message);
+      }
+    }
+    fetchPostList();
+  }, [filters]);
 
-  function handleTodoFormSubmit(formValues) {
-    const newTodoList = [...todoList];
-    const newTodo = {
-      id: Math.trunc(Math.random() * 1000),
-      ...formValues
-    };
-    newTodoList.push(newTodo);
-    setTodoList(newTodoList);
+  function handlePageChange(newPage) {
+    setFilters({
+      ...filters,
+      _page: newPage,
+    })
   }
   return (
     <div className="app">
-      <h1>Todo - List</h1>
-      <TodoForm
-        onSubmit={handleTodoFormSubmit}
-      />
-      <TodoList
-        todos={todoList}
-        onTodoClick={handleTodoClick}
-
+      {
+        postList.map(post => (
+          <li key={post.id}>{post.title}</li>
+        ))
+      }
+      <Pagination
+        pagination={pagination}
+        onPageChange={handlePageChange}
       />
     </div>
   );
