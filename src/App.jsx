@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import './App.scss';
 import Pagination from './components/Pagination';
+import PostFiltersForm from './components/PostFiltersForm';
 
 function App() {
   const [postList, setPostList] = useState([]);
@@ -40,8 +41,17 @@ function App() {
       _page: newPage,
     })
   }
+
+  function handleFiltersChange(newFilters) {
+    setFilters({
+      ...filters,
+      _page: 1,
+      title_like: newFilters.searchTerm,
+    })
+  }
   return (
     <div className="app">
+      <PostFiltersForm onFiltersChange={handleFiltersChange} />
       {
         postList.map(post => (
           <li key={post.id}>{post.title}</li>
